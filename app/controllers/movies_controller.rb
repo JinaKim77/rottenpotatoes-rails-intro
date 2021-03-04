@@ -7,7 +7,24 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    #@movies = Movie.all
+    @all_ratings = Movie.order(:rating).select(:rating).map(&:rating).uniq
+    
+    @ratings_to_show = Movie.ratings_to_show
+    
+    @with_ratings = Movie.with_ratings(@ratings_to_show)
+    
+    @ratings_to_show = checkbox
+    @ratings_to_show.each do |rating|
+      params[rating] = true
+    end
+    
+    if params[:sort]
+      @movies = Movie.order(params[:sort])
+    else
+      @movies = Movie.where(:rating => @ratings_to_show)
+    end
+      
   end
 
   def new
@@ -43,5 +60,13 @@ class MoviesController < ApplicationController
   # This helps make clear which methods respond to requests, and which ones do not.
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
+  end
+  
+  def checkbox
+    if params[:ratings]
+      params[:ratings].keys
+    else
+      @all_ratings
+    end
   end
 end
