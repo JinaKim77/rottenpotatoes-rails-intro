@@ -7,13 +7,13 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @sort = params[:sort] || session[:sort]
     @movies = Movie.order(params[:sort]).all
     @all_ratings = Movie.order(:rating).select(:rating).map(&:rating).uniq
-    
+    @ratings = params[:ratings]  || session[:ratings]
     @ratings_to_show = Movie.ratings_to_show
     
     @with_ratings = Movie.with_ratings(@ratings_to_show)
-    redirect = false
     @ratings_to_show = checkbox
     @ratings_to_show.each do |rating|
       params[rating] = true
@@ -23,6 +23,12 @@ class MoviesController < ApplicationController
       @movies = Movie.order(params[:sort])
     else
       @movies = Movie.where(:rating => @ratings_to_show)
+      session[:sort], session[:ratings] = @sort, @ratings
+    end
+    
+    if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
+      flash.keep
+      redirect_to movies_path sort: @sort, ratings: @ratings
     end
     
     if params[:sort] == 'title'
