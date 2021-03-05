@@ -21,19 +21,16 @@ class MoviesController < ApplicationController
     
     if params[:sort]
       @movies = Movie.order(params[:sort])
-      @title_header = {:order => :title},'hilite'
     else
       @movies = Movie.where(:rating => @ratings_to_show)
     end
     
-    if 'title'
-      @title_header = {:order => :title},'hilite'
+    if params[:sort] == 'title'
+      @title_header = 'hilite'
     end
-    if 'release_date'
-      @date_header = {:order => :release_date},'hilite'
+    if params[:sort] == 'release_date'
+      @release_header = 'hilite'
     end
-
-    
     
   end
 
