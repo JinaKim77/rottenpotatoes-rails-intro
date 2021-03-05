@@ -7,13 +7,13 @@ class MoviesController < ApplicationController
   end
 
   def index
-    #@movies = Movie.all
+    @movies = Movie.order(params[:sort]).all
     @all_ratings = Movie.order(:rating).select(:rating).map(&:rating).uniq
     
     @ratings_to_show = Movie.ratings_to_show
     
     @with_ratings = Movie.with_ratings(@ratings_to_show)
-    
+    redirect = false
     @ratings_to_show = checkbox
     @ratings_to_show.each do |rating|
       params[rating] = true
@@ -21,10 +21,20 @@ class MoviesController < ApplicationController
     
     if params[:sort]
       @movies = Movie.order(params[:sort])
+      @title_header = {:order => :title},'hilite'
     else
       @movies = Movie.where(:rating => @ratings_to_show)
     end
-      
+    
+    if 'title'
+      @title_header = {:order => :title},'hilite'
+    end
+    if 'release_date'
+      @date_header = {:order => :release_date},'hilite'
+    end
+
+    
+    
   end
 
   def new
